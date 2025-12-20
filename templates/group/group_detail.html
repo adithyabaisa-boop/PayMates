@@ -1,0 +1,39 @@
+<h2>{{ group.name }}</h2>
+
+<p><strong>Total Expenses:</strong> ₹{{ total_expense }}</p>
+
+{% if request.user == group.created_by %}
+    <a href="/group/{{ group.id }}/split/">🧮 Split Bill</a>
+{% endif %}
+
+<br><br>
+<a href="/group/{{ group.id }}/add-expense/">➕ Add Expense</a>
+
+<hr>
+
+<h3>Expenses</h3>
+
+{% if expenses %}
+    <ul>
+        {% for expense in expenses %}
+           <li>
+                {{ expense.description }} —
+                ₹{{ expense.amount }} —
+                Paid by {{ expense.paid_by.username }}
+
+                {% if expense.receipt %}
+                    <br>
+                    <a href="{{ expense.receipt.url }}" target="_blank">
+                        📎 View Receipt
+                    </a>
+                {% endif %}
+            </li>
+
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No expenses yet.</p>
+{% endif %}
+
+<br>
+<a href="/dashboard/">⬅️ Back to Dashboard</a>

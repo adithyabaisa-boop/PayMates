@@ -1,0 +1,32 @@
+<h1>Welcome to PayMates</h1>
+
+<p>
+    Logged in as <strong>{{ request.user.username }}</strong>
+</p>
+
+<a href="/logout/">🚪 Logout</a>
+
+<hr>
+
+<a href="/group/create/">➕ Create New Group</a>
+<br>
+<a href="/group/join/">👥 Join Group</a>
+
+<h2>Your Groups</h2>
+
+{% if groups %}
+    <ul>
+        {% for group in groups %}
+            <li>
+                <!-- 👇 CLICKABLE GROUP -->
+                <a href="/group/{{ group.id }}/">
+                    <strong>{{ group.name }}</strong>
+                </a>
+                <br>
+                Group Code: {{ group.group_code }}
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>You are not part of any groups yet.</p>
+{% endif %}
