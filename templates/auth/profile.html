@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<div style="max-width: 500px; margin: 2rem auto; padding: 0;">
+  
+  <!-- Main Profile Card -->
+  <div style="
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); 
+    border-radius: 24px; 
+    padding: 2.5rem; 
+    box-shadow: 0 25px 80px rgba(0,0,0,0.12); 
+    border: 1px solid rgba(255,255,255,0.3); 
+    backdrop-filter: blur(20px);
+    position: relative; 
+    overflow: hidden;
+  ">
+    <!-- Gradient accent -->
+    <div style="
+      position: absolute; 
+      top: 0; left: 0; 
+      width: 200px; height: 200px; 
+      background: linear-gradient(135deg, #667eea33, #764ba233); 
+      border-radius: 50% 0 50% 0; 
+      transform: translate(-50%, -50%);
+    "></div>
+    
+    <div style="text-align: center; position: relative; z-index: 2;">
+      
+      <!-- Profile Photo -->
+      <div style="
+        width: 120px; height: 120px; 
+        border-radius: 50%; 
+        margin: 0 auto 2rem; 
+        background: linear-gradient(135deg, #667eea, #764ba2); 
+        border: 5px solid white; 
+        box-shadow: 0 15px 50px rgba(102,126,234,0.3); 
+        overflow: hidden;
+        {% if profile.image %}background-image: url('{{ profile.image.url }}'); background-size: cover; background-position: center;{% endif %}
+      ">
+        {% if not profile.image %}
+          <div style="
+            width: 100%; height: 100%; 
+            display: flex; align-items: center; justify-content: center; 
+            background: rgba(255,255,255,0.2); 
+            font-size: 3rem; color: white;
+          ">👤</div>
+        {% endif %}
+      </div>
+
+      <!-- Profile Info -->
+      <div id="profileInfo" style="
+        background: rgba(255,255,255,0.7); 
+        backdrop-filter: blur(10px); 
+        border-radius: 20px; 
+        padding: 2rem; 
+        margin-bottom: 1.5rem; 
+        border: 1px solid rgba(255,255,255,0.5);
+      ">
+        <div style="font-size: 1.6rem; font-weight: 700; color: #1e293b; margin-bottom: 1rem;">
+          {{ profile.full_name|default:user.username|title }}
+        </div>
+        <div style="display: grid; gap: 0.75rem; font-size: 1rem; color: #475569;">
+          <div><strong>📧 Email:</strong> {{ profile.email|default:user.email|default:"Not set" }}</div>
+          <div><strong>📅 DOB:</strong> {{ profile.date_of_birth|date:"M d, Y"|default:"Not set" }}</div>
+          <div><strong>📱 Mobile:</strong> {{ profile.mobile|default:"Not set" }}</div>
+        </div>
+      </div>
+
+      <!-- Edit Button -->
+      <button id="editBtn" onclick="toggleEdit()" style="
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+        color: white; 
+        border: none; 
+        padding: 1rem 2.5rem; 
+        border-radius: 50px; 
+        font-weight: 600; 
+        font-size: 1rem; 
+        cursor: pointer; 
+        box-shadow: 0 10px 30px rgba(16,185,129,0.4); 
+        transition: all 0.3s ease;
+      ">
+        ✏️ Edit Profile
+      </button>
+    </div>
+  </div>
+
+  <!-- Edit Form (Hidden by default) -->
+  <div id="editForm" style="display: none; background: white; border-radius: 24px; padding: 2.5rem; box-shadow: 0 25px 80px rgba(0,0,0,0.12); margin-top: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+      <h2 style="font-size: 1.5rem; color: #1e293b; font-weight: 700;">Edit Profile</h2>
+      <button type="button" onclick="toggleEdit()" style="
+        background: #f1f5f9; color: #64748b; 
+        border: none; padding: 0.75rem 1.5rem; 
+        border-radius: 50px; cursor: pointer; font-weight: 500;
+      ">✕ Cancel</button>
+    </div>
+
+    <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      
+      <!-- Avatar Upload -->
+      <div style="margin-bottom: 2rem; padding: 1.5rem; background: #f8fafc; border-radius: 16px; border: 2px dashed #e2e8f0; text-align: center;">
+        <label style="cursor: pointer; display: block; margin-bottom: 0.5rem; font-weight: 600; color: #374151;">
+          📸 Change Profile Photo
+          <input type="file" name="image" accept="image/*" style="display: none;" onchange="previewImage(this)">
+        </label>
+        <p style="color: #94a3b8; font-size: 0.875rem;">PNG, JPG (Max 5MB)</p>
+      </div>
+
+      <div style="display: grid; gap: 1.5rem;">
+        <div>
+          <label style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: #1e293b;">Full Name</label>
+          <input type="text" name="full_name" value="{{ profile.full_name }}" required 
+                 style="width: 100%; padding: 1.25rem; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1rem; transition: all 0.2s;">
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div>
+            <label style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: #1e293b;">Date of Birth</label>
+            <input type="date" name="date_of_birth" value="{{ profile.date_of_birth|date:'Y-m-d' }}"
+                   style="width: 100%; padding: 1.25rem; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1rem;">
+          </div>
+          <div>
+            <label style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: #1e293b;">Mobile</label>
+            <input type="tel" name="mobile" value="{{ profile.mobile }}"
+                   style="width: 100%; padding: 1.25rem; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1rem;">
+          </div>
+        </div>
+
+        <div>
+          <label style="display: block; margin-bottom: 0.75rem; font-weight: 600; color: #1e293b;">Email</label>
+          <input type="email" name="email" value="{{ profile.email }}" 
+                 style="width: 100%; padding: 1.25rem; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1rem;">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+        <button type="submit" style="
+          flex: 1; 
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%); 
+          color: white; border: none; 
+          padding: 1.25rem; border-radius: 16px; 
+          font-weight: 700; font-size: 1.1rem; 
+          cursor: pointer; box-shadow: 0 10px 30px rgba(16,185,129,0.4);
+        ">💾 Update Profile</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+let isEditing = false;
+function toggleEdit() {
+  isEditing = !isEditing;
+  document.getElementById('profileInfo').style.display = isEditing ? 'none' : 'block';
+  document.getElementById('editForm').style.display = isEditing ? 'block' : 'none';
+  document.getElementById('editBtn').innerText = isEditing ? 'Cancel Edit' : '✏️ Edit Profile';
+  document.getElementById('editBtn').style.background = isEditing ? 
+    'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 
+    'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+}
+
+function previewImage(input) {
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      input.parentElement.parentElement.querySelector('.profile-photo')?.style.setProperty('background-image', `url(${e.target.result})`);
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+}
+</script>
+
+<style>
+input:focus { 
+  outline: none; 
+  border-color: #667eea !important; 
+  box-shadow: 0 0 0 4px rgba(102,126,234,0.1); 
+  background: white !important;
+}
+</style>
+{% endblock %}

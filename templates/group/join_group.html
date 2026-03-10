@@ -1,11 +1,29 @@
-<h2>Join Group</h2>
+{% extends "base.html" %}
+{% block title %}Join Group{% endblock %}
 
-{% if error %}
-    <p style="color:red;">{{ error }}</p>
-{% endif %}
+{% block content %}
+<div style="max-width:520px;margin:0 auto;padding:1.5rem 1rem 5rem;">
+  <h2 style="margin-bottom:1rem;">Join group</h2>
 
-<form method="post">
+  {% if error %}
+    <div style="background:#fee2e2;border:1px solid #fecaca;color:#991b1b;padding:12px;border-radius:12px;margin-bottom:12px;">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <form method="post" style="display:flex;flex-direction:column;gap:12px;">
     {% csrf_token %}
-    <input type="text" name="code" placeholder="Enter Group Code" required>
-    <button type="submit">Join</button>
-</form>
+
+    <input type="text"
+           name="groupcode"
+           placeholder="Enter group code"
+           required
+           style="padding:12px;border-radius:12px;border:1px solid #e5e7eb;">
+
+    <button type="submit"
+            style="border:none;border-radius:12px;padding:12px 14px;font-weight:900;background:#4f46e5;color:#fff;cursor:pointer;">
+      Join
+    </button>
+  </form>
+</div>
+{% endblock %}

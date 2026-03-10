@@ -1,26 +1,89 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>PayMates - Signup</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h2>Create PayMates Account</h2>
+{% block content %}
+<div style="
+    max-width: 420px;
+    margin: 3rem auto;
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.08);
+">
+    <button type="button"
+            onclick="history.back()"
+            style="
+                margin-bottom: 0.75rem;
+                border-radius: 999px;
+                padding: 0.4rem 0.9rem;
+                border: 1px solid #d1d5db;
+                background:#e5e7eb;
+                cursor:pointer;
+            ">
+        Back
+    </button>
 
-<form method="post">
-    {% csrf_token %}
-    <input type="text" name="username" placeholder="Username" required><br><br>
-    <input type="email" name="email" placeholder="Email" required><br><br>
-    <input type="password" name="password" placeholder="Password" required><br><br>
-    <button type="submit">Signup</button>
-</form>
+    <div style="
+        text-align:center;
+        margin-bottom: 1rem;
+        padding:0.75rem;
+        background:#ecfdf5;
+        border-radius:10px;
+    ">
+        <h1 style="margin:0;">Create your PayMates account</h1>
+    </div>
 
-<hr>
+    {% if error %}
+        <p style="color:red; margin-bottom:0.5rem;">{{ error }}</p>
+    {% endif %}
 
-<p>
-    Already have an account?
-    <a href="/login/">Login here</a>
-</p>
+    <form method="post" style="display:flex; flex-direction:column; gap:0.75rem;">
+        {% csrf_token %}
 
-</body>
-</html>
+        <div style="display:flex; flex-direction:column; gap:0.25rem;">
+            <label for="id_email">Email</label>
+            <input type="email"
+                   id="id_email"
+                   name="email"
+                   placeholder="Email"
+                   style="padding:0.5rem; border-radius:8px; border:1px solid #d1d5db;"
+                   required>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:0.25rem;">
+            <label for="id_username">Username</label>
+            <input type="text"
+                   id="id_username"
+                   name="username"
+                   placeholder="Username"
+                   style="padding:0.5rem; border-radius:8px; border:1px solid #d1d5db;"
+                   required>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:0.25rem;">
+            <label for="id_password">Password</label>
+            <input type="password"
+                   id="id_password"
+                   name="password"
+                   placeholder="Password"
+                   minlength="8"
+                   style="padding:0.5rem; border-radius:8px; border:1px solid #d1d5db;"
+                   required>
+            <small style="font-size:0.75rem; color:#6b7280;">Minimum 8 characters</small>
+        </div>
+
+        <button type="submit"
+                style="
+                    margin-top:0.5rem;
+                    padding:0.6rem;
+                    border-radius:999px;
+                    border:none;
+                    background:#16a34a;
+                    color:#ffffff;
+                    font-size:0.95rem;
+                    cursor:pointer;
+                ">
+            Done
+        </button>
+    </form>
+</div>
+{% endblock %}

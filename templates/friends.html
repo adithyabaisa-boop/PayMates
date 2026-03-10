@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <h2>My Friends</h2>
+
+    {% if friends %}
+        <ul>
+            {% for friend in friends %}
+                <li>{{ friend.username }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You have no friends yet.</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>Add Friends from Groups</h3>
+    {% if potential_friends %}
+        <ul>
+            {% for user in potential_friends %}
+                <li>
+                    {{ user.username }}
+                    <a href="{% url 'send_friend_request' user.id %}"
+                       style="margin-left:10px; color:#16a34a; font-size:0.85rem;">
+                        Send Request
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No new people to add. Join more groups!</p>
+    {% endif %}
+</div>
+{% endblock %}

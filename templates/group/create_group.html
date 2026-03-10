@@ -1,7 +1,29 @@
-<h2>Create Group</h2>
+{% extends "base.html" %}
+{% block title %}Create Group{% endblock %}
 
-<form method="post">
+{% block content %}
+<div style="max-width:520px;margin:0 auto;padding:1.5rem 1rem 5rem;">
+  <h2 style="margin-bottom:1rem;">Create group</h2>
+
+  {% if error %}
+    <div style="background:#fee2e2;border:1px solid #fecaca;color:#991b1b;padding:12px;border-radius:12px;margin-bottom:12px;">
+      {{ error }}
+    </div>
+  {% endif %}
+
+  <form method="post" enctype="multipart/form-data" style="display:flex;flex-direction:column;gap:12px;">
     {% csrf_token %}
-    <input type="text" name="name" placeholder="Group Name" required>
-    <button type="submit">Create</button>
-</form>
+
+    <input type="text" name="name" placeholder="Group name" required
+           style="padding:12px;border-radius:12px;border:1px solid #e5e7eb;">
+
+    <label style="font-weight:700;">Group photo (optional)</label>
+    <input type="file" name="image" accept="image/*">
+
+    <button type="submit"
+            style="border:none;border-radius:12px;padding:12px 14px;font-weight:900;background:#4f46e5;color:#fff;cursor:pointer;">
+      Create
+    </button>
+  </form>
+</div>
+{% endblock %}

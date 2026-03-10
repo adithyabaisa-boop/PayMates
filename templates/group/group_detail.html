@@ -1,39 +1,141 @@
-<h2>{{ group.name }}</h2>
+{% extends "base.html" %}
+{% block title %}{{ group.name }}{% endblock %}
 
-<p><strong>Total Expenses:</strong> ₹{{ total_expense }}</p>
+{% block content %}
+<div style="max-width:1100px;margin:0 auto;padding:1.5rem 1rem 6rem;">
 
-{% if request.user == group.created_by %}
-    <a href="/group/{{ group.id }}/split/">🧮 Split Bill</a>
-{% endif %}
+  <!-- Header row -->
+  <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.75rem;">
+    <a href="{% url 'dashboard' %}"
+       style="font-size:1.8rem;color:#334155;text-decoration:none;padding:4px 8px;border-radius:999px;background:#f1f5f9;">
+      ←
+    </a>
 
-<br><br>
-<a href="/group/{{ group.id }}/add-expense/">➕ Add Expense</a>
+    <div style="flex:1;">
+      <div style="display:flex;align-items:center;gap:12px;">
+        <div style="width:56px;height:56px;border-radius:999px;overflow:hidden;background:#e5e7eb;display:flex;align-items:center;justify-content:center;font-weight:1000;">
+          {% if group.image %}
+            <img src="{{ group.image.url }}" alt="{{ group.name }}" style="width:100%;height:100%;object-fit:cover;">
+          {% else %}
+            {{ group.name.0|upper }}
+          {% endif %}
+        </div>
 
-<hr>
+        <div>
+          <h2 style="margin:0;color:#0f172a;">{{ group.name }}</h2>
+          <div style="color:#64748b;font-size:13px;">
+            Code: <b>{{ group.groupcode }}</b>
+          </div>
+        </div>
+      </div>
+    </div>
 
-<h3>Expenses</h3>
+    <a href="{% url 'groupinfo' groupid=group.id %}"
+       style="text-decoration:none;background:#0ea5e9;color:#fff;padding:10px 14px;border-radius:12px;font-weight:900;">
+      Group info
+    </a>
+  </div>
 
-{% if expenses %}
-    <ul>
-        {% for expense in expenses %}
-           <li>
-                {{ expense.description }} —
-                ₹{{ expense.amount }} —
-                Paid by {{ expense.paid_by.username }}
+  <!-- Quick actions -->
+  <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;">
+    <a href="{% url 'chatroom' groupid=group.id %}"
+       style="text-decoration:none;background:#10b981;color:#fff;padding:12px 14px;border-radius:14px;font-weight:900;">
+      Open chat
+    </a>
 
-                {% if expense.receipt %}
-                    <br>
-                    <a href="{{ expense.receipt.url }}" target="_blank">
-                        📎 View Receipt
-                    </a>
-                {% endif %}
-            </li>
+    <a href="{% url 'addexpense' groupid=group.id %}"
+       style="text-decoration:none;background:#4f46e5;color:#fff;padding:12px 14px;border-radius:14px;font-weight:900;">
+      Add expense
+    </a>
 
-        {% endfor %}
-    </ul>
-{% else %}
-    <p>No expenses yet.</p>
-{% endif %}
+    <a href="{% url 'splitdetails' groupid=group.id %}"
+       style="text-decoration:none;background:#111827;color:#fff;padding:12px 14px;border-radius:14px;font-weight:900;">
+      Split details
+    </a>
 
-<br>
-<a href="/dashboard/">⬅️ Back to Dashboard</a>
+    {% if request.user.id == group.createdby_id %}
+      <a href="{% url 'sendinvite' groupid=group.id %}"
+         style="text-decoration:none;background:#f59e0b;color:#111827;padding:12px 14px;border-radius:14px;font-weight:900;">
+        Invite
+      </a>
+    {% endif %}
+  </div>
+
+  <!-- Expenses list -->
+  <div style="display:flex;justify-content:space-between;align-items:center;margin:18px 0 10px;">
+    <h3 style="margin:0;">Expenses</h3>
+    <div style="color:#64748b;font-size:13px;">
+      {{ expenses|length }} item{{ expenses|length|pluralize }}
+    </div>
+  </div>
+
+  {% if expenses %}
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      {% for e in expenses %}
+        <div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:14px;box-shadow:0 12px 40px rgba(15,23,42,0.06);">
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap;">
+            <div style="min-width:240px;">
+              <div style="font-weight:1000;color:#0f172a;font-size:16px;">{{ e.description }}</div>
+              <div style="color:#64748b;font-size:13px;margin-top:4px;">
+                Paid by <b>{{ e.paidby.username }}</b> • {{ e.createdat|date:"M d, Y H:i" }}
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div style="font-weight:1000;font-size:16px;color:#0f172a;">
+                ₹{{ e.amount }}
+              </div>
+
+              {% if request.user.id == group.createdby_id or request.user.id == e.paidby_id %}
+                <form method="post" action="{% url 'deleteexpense' groupid=group.id expenseid=e.id %}">
+                  {% csrf_token %}
+                  <button type="submit"
+                          style="border:none;border-radius:12px;padding:10px 12px;font-weight:1000;background:#fee2e2;color:#991b1b;cursor:pointer;"
+                          onclick="return confirm('Delete this expense?');">
+                    Delete
+                  </button>
+                </form>
+              {% endif %}
+            </div>
+          </div>
+
+          {% if e.receipt %}
+            <div style="margin-top:10px;">
+              <a href="{{ e.receipt.url }}" target="_blank" style="color:#2563eb;font-weight:900;text-decoration:none;">
+                View receipt
+              </a>
+            </div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:22px;color:#64748b;">
+      No expenses yet. Add your first expense.
+    </div>
+  {% endif %}
+
+  <!-- Leave / Delete group -->
+  <div style="margin-top:22px;display:flex;gap:10px;flex-wrap:wrap;">
+    {% if request.user.id != group.createdby_id %}
+      <form method="post" action="{% url 'exitgroup' groupid=group.id %}">
+        {% csrf_token %}
+        <button type="submit"
+                style="border:none;border-radius:14px;padding:12px 14px;font-weight:1000;background:#ef4444;color:#fff;cursor:pointer;">
+          Request to leave
+        </button>
+      </form>
+    {% else %}
+      <form method="post" action="{% url 'deletegroup' groupid=group.id %}">
+        {% csrf_token %}
+        <button type="submit"
+                style="border:none;border-radius:14px;padding:12px 14px;font-weight:1000;background:#ef4444;color:#fff;cursor:pointer;"
+                onclick="return confirm('Delete this group? This cannot be undone.');">
+          Delete group
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}

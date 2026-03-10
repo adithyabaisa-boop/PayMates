@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div style="max-width:600px;margin:0 auto;padding:1.5rem 1rem 5rem;">
+  <h2 style="margin-bottom:1rem;">Notifications ({{ unreadcount }})</h2>
+
+  {% if notifications %}
+    <div style="display:flex;flex-direction:column;gap:1rem;">
+      {% for n in notifications %}
+        <div style="
+          padding:1.25rem;
+          background:white;
+          border-radius:16px;
+          box-shadow:0 4px 16px rgba(0,0,0,0.06);
+          border-left:4px solid
+            {% if n.type == 'invite' %}#4f46e5
+            {% elif n.type == 'expensedeleted' %}#ef4444
+            {% elif n.type == 'groupchat' or n.type == 'privatechat' %}#22c55e
+            {% else %}#10b981{% endif %};
+        ">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+            <div style="flex:1;">
+              <div style="font-weight:600;font-size:16px;margin-bottom:0.25rem;">{{ n.message }}</div>
+
+              {% if n.group %}
+                <div style="font-size:12px;color:#94a3b8;padding:0.25rem 0.5rem;background:#f1f5f9;border-radius:999px;display:inline-block;margin-bottom:0.75rem;">
+                  {{ n.group.name }}
+                </div>
+              {% endif %}
+
+              {% if n.type == "invite" and n.group %}
+                <div style="display:flex;gap:10px;margin-top:0.25rem;">
+                  <form method="post" action="{% url 'acceptinvite' n.id %}">
+                    {% csrf_token %}
+                    <button type="submit" style="border:none;border-radius:10px;padding:10px 14px;font-weight:800;background:#22c55e;color:white;cursor:pointer;">
+                      Accept
+                    </button>
+                  </form>
+
+                  <form method="post" action="{% url 'rejectinvite' n.id %}">
+                    {% csrf_token %}
+                    <button type="submit" style="border:none;border-radius:10px;padding:10px 14px;font-weight:800;background:#ef4444;color:white;cursor:pointer;">
+                      Reject
+                    </button>
+                  </form>
+                </div>
+              {% endif %}
+
+              {% if n.type == "groupchat" and n.group %}
+                <div style="margin-top:10px;">
+                  <a href="{% url 'chatroom' n.group.id %}"
+                     style="display:inline-block;text-decoration:none;border-radius:10px;padding:10px 14px;font-weight:900;background:#0ea5e9;color:#fff;">
+                    Open group chat
+                  </a>
+                </div>
+              {% endif %}
+
+              {% if n.type == "privatechat" %}
+                <div style="margin-top:10px;color:#64748b;font-size:13px;">
+                  Open Chats to continue the conversation.
+                </div>
+              {% endif %}
+            </div>
+
+            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
+              <div style="font-size:12px;color:#94a3b8;">{{ n.createdat|date:"M d, H:i" }}</div>
+              {% if not n.isread %}
+                <div style="width:10px;height:10px;border-radius:999px;background:#22c55e;"></div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <form method="post" style="margin-top:16px;">
+      {% csrf_token %}
+      <button type="submit" style="border:none;border-radius:12px;padding:12px 14px;font-weight:900;background:#111827;color:#fff;cursor:pointer;">
+        Mark all as read
+      </button>
+    </form>
+
+  {% else %}
+    <div style="text-align:center;padding:3rem;color:#64748b;">
+      <div style="font-size:3rem;margin-bottom:1rem;">🔔</div>
+      <p>No notifications yet</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

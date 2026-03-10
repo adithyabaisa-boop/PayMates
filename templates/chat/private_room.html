@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}Chat • {{ otheruser.username }}{% endblock %}
+
+{% block extra_css %}
+<style>
+  .chat-wrap{max-width:900px;margin:0 auto;padding:1.5rem 1rem 5rem 1rem;}
+  .chat-box{height:60vh;overflow-y:auto;border-radius:16px;border:1px solid #e5e7eb;padding:14px 12px;background:#efeae2;}
+  .msg-row{display:flex;margin:8px 0;}
+  .msg-row.me{justify-content:flex-end;}
+  .msg-row.other{justify-content:flex-start;}
+  .bubble{max-width:78%;border-radius:14px;padding:8px 10px;box-shadow:0 2px 10px rgba(15,23,42,0.06);word-wrap:break-word;}
+  .bubble.me{background:#dcf8c6;border-top-right-radius:6px;}
+  .bubble.other{background:#fff;border-top-left-radius:6px;}
+  .meta{font-size:11px;color:#64748b;margin-bottom:2px;}
+  .time{font-size:11px;color:#64748b;margin-top:4px;text-align:right;}
+  .chat-img{margin-top:6px;max-width:100%;border-radius:12px;border:1px solid #e5e7eb;display:block;}
+  .composer{margin-top:10px;display:flex;gap:10px;align-items:center;}
+  .file-btn{width:44px;height:44px;border-radius:999px;border:1px solid #d1d5db;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;}
+  input[type="file"]{display:none;}
+  .msg-input{flex:1;padding:0.7rem 0.9rem;border-radius:999px;border:1px solid #d1d5db;font-size:14px;background:#fff;}
+  .send-btn{padding:0.7rem 1.2rem;border:none;border-radius:999px;background:#4f46e5;color:#fff;font-weight:600;cursor:pointer;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-wrap">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:1rem;">
+    <a href="{% url 'chatslist' %}" style="text-decoration:none;color:#4b5563;">← Back</a>
+    <div style="font-weight:1000;">Chat with {{ otheruser.username }}</div>
+    <div></div>
+  </div>
+
+  <div class="chat-box" id="chatBox">
+    {% if messages %}
+      {% for m in messages %}
+        <div class="msg-row {% if m.user.id == request.user.id %}me{% else %}other{% endif %}">
+          <div class="bubble {% if m.user.id == request.user.id %}me{% else %}other{% endif %}">
+            <div class="meta">{% if m.user.id == request.user.id %}You{% else %}{{ m.user.username }}{% endif %}</div>
+            {% if m.message %}<div style="font-size:14px;">{{ m.message|linebreaksbr }}</div>{% endif %}
+            {% if m.image %}<img class="chat-img" src="{{ m.image.url }}" alt="image">{% endif %}
+            <div class="time">{{ m.createdat|date:"d M, H:i" }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div style="color:#64748b;">No messages yet.</div>
+    {% endif %}
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="composer">
+    {% csrf_token %}
+    <label class="file-btn" title="Attach image">+
+      <input type="file" name="image" accept="image/*">
+    </label>
+    <input class="msg-input" type="text" name="message" placeholder="Type a message" autocomplete="off">
+    <button class="send-btn" type="submit">Send</button>
+  </form>
+</div>
+
+<script>
+  const box = document.getElementById("chatBox");
+  if (box) box.scrollTop = box.scrollHeight;
+</script>
+{% endblock %}

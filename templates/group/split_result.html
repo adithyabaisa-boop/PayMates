@@ -1,34 +1,31 @@
-<h2>Split Result — {{ group.name }}</h2>
+{% extends 'base.html' %}
+{% block content %}
 
-<p><strong>Total Expense:</strong> ₹{{ total }}</p>
-<p><strong>Equal Share:</strong> ₹{{ share }}</p>
+<h2>Settlement — {{ group.name }}</h2>
+
+<p><strong>Total:</strong> ₹{{ total }}</p>
+<p><strong>Per Person:</strong> ₹{{ share }}</p>
 
 <hr>
 
-<h3>Who Owes Whom</h3>
-
 {% if settlements %}
 <ul>
-{% for s in settlements %}
-    <li>
-        <strong>{{ s.from.username }}</strong>
-        owes
-        <strong>{{ s.to.username }}</strong>
-        ₹{{ s.amount }}
-
-        <form method="post"
-              action="/group/{{ group.id }}/settle/{{ s.from.id }}/{{ s.to.id }}/"
-              style="display:inline;">
-            {% csrf_token %}
-            <input type="hidden" name="amount" value="{{ s.amount }}">
-            <button type="submit">Settle Up</button>
-        </form>
-    </li>
-{% endfor %}
+    {% for s in settlements %}
+        {% if user == s.from %}
+            <li style="color:red;">
+                You owe {{ s.to.username }} ₹{{ s.amount }}
+            </li>
+        {% elif user == s.to %}
+            <li style="color:green;">
+                {{ s.from.username }} owes you ₹{{ s.amount }}
+            </li>
+        {% endif %}
+    {% endfor %}
 </ul>
 {% else %}
 <p>🎉 All settled!</p>
 {% endif %}
 
-<br>
-<a href="/group/{{ group.id }}/">⬅️ Back to Group</a>
+<a href="/group/{{ group.id }}/">← Back to Group</a>
+
+{% endblock %}

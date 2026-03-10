@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chats{% endblock %}
+
+{% block extra_css %}
+<style>
+  body { background:#f6f7fb; }
+  .wrap{ max-width:680px; margin:0 auto; padding:18px 14px 90px; }
+  .page-title{ font-size:22px; font-weight:900; color:#0f172a; margin:6px 0 12px; }
+
+  .list{ background:#fff; border:1px solid #e5e7eb; border-radius:18px; overflow:hidden;
+         box-shadow: 0 18px 60px rgba(15,23,42,0.07); }
+
+  .item{ display:flex; gap:12px; padding:12px 14px; text-decoration:none; color:inherit;
+         border-bottom:1px solid #eef2f7; transition: background .12s ease; }
+  .item:hover{ background:#f8fafc; }
+  .item:last-child{ border-bottom:none; }
+
+  .avatar{ width:52px; height:52px; border-radius:999px; flex:0 0 auto; overflow:hidden;
+           display:flex; align-items:center; justify-content:center; font-weight:900; color:#fff;
+           background: linear-gradient(135deg, #10b981, #059669); user-select:none; }
+  .avatar img{ width:100%; height:100%; object-fit:cover; display:block; }
+
+  .mid{ flex:1; min-width:0; display:flex; flex-direction:column; justify-content:center; gap:2px; }
+  .name{ font-size:16px; font-weight:900; color:#0f172a; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .preview{ font-size:13px; color:#64748b; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+  .right{ flex:0 0 auto; display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:6px; min-width:56px; }
+  .time{ font-size:12px; color:#94a3b8; }
+  .badge{ min-width:22px; height:22px; border-radius:999px; padding:0 7px; display:inline-flex;
+          align-items:center; justify-content:center; font-size:12px; font-weight:900; color:#fff; background:#25d366; }
+
+  .empty{ text-align:center; padding:40px 16px; color:#64748b; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <div class="page-title">Chats</div>
+
+  <div class="list">
+    {% if all_chats %}
+      {% for chat in all_chats %}
+        <a class="item" href="{% url chat.url_name chat.url_id %}">
+          <div class="avatar">
+            {% if chat.image %}
+              <img src="{{ chat.image }}" alt="{{ chat.title }}">
+            {% else %}
+              {{ chat.title.0|upper }}
+            {% endif %}
+          </div>
+
+          <div class="mid">
+            <div class="name">{{ chat.title }}</div>
+            <div class="preview">{{ chat.latest_message }}</div>
+          </div>
+
+          <div class="right">
+            <div class="time">
+              {% if chat.latest_time %}{{ chat.latest_time|date:"H:i" }}{% endif %}
+            </div>
+            {% if chat.unread_count > 0 %}
+              <div class="badge">{{ chat.unread_count }}</div>
+            {% endif %}
+          </div>
+        </a>
+      {% endfor %}
+    {% else %}
+      <div class="empty">
+        <div style="font-size:48px; margin-bottom:10px;">💬</div>
+        <div style="font-weight:900; color:#0f172a;">No chats yet</div>
+        <div>Join a group or start a private chat.</div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

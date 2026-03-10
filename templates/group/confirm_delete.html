@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Expense{% endblock %}
+
+{% block content %}
+<div style="max-width:500px; margin:2rem auto; padding:2rem; background:white; border-radius:20px; box-shadow:0 20px 60px rgba(0,0,0,0.1);">
+  <h2 style="color:#ef4444; margin-bottom:1rem;">Delete Expense?</h2>
+  
+  <div style="background:#fef2f2; padding:1.5rem; border-radius:12px; border-left:4px solid #ef4444; margin-bottom:2rem;">
+    <div style="font-weight:600; font-size:16px; margin-bottom:0.5rem;">{{ expense.description }}</div>
+    <div style="color:#64748b;">₹{{ expense.amount }} by {{ expense.paid_by.profile.full_name|default:expense.paid_by.username }}</div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" style="width:100%; padding:1rem 2rem; background:#ef4444; color:white; border:none; border-radius:12px; font-weight:600; font-size:16px; cursor:pointer;">
+      Yes, delete it
+    </button>
+  </form>
+
+  <a href="{% url 'group_detail' group.id %}" style="display:block; margin-top:1rem; text-align:center; color:#4f46e5; text-decoration:none; font-weight:500;">
+    ← Cancel, keep it
+  </a>
+</div>
+{% endblock %}
